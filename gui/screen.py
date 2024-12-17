@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5 import QtGui
 
 from gui import piewidget
+from gui import custom_gui_functions as cgf
 from network_functions import find_devices
 
 class PolygonWidget(QWidget):
@@ -96,7 +97,7 @@ class MainWindow(QMainWindow):
 
         # Gear
         self.settings_label(bg)
-
+        
         # signals
         self.settings.clicked.connect(lambda: self.gearClicked())
 
@@ -122,7 +123,7 @@ class MainWindow(QMainWindow):
     
     def settings_label(self, bg):
         self.settings = QPushButton(self)
-        self.png_button(self.settings, "gear")
+        cgf.png_button(self.settings, "gear", self.iconSize)
         self.settings.move(
             int(self.headerBlock.width() - self.settings.width()), 
             int(self.headerBlock.height() / 2 - self.settings.height() / 2)
@@ -174,7 +175,7 @@ class MainWindow(QMainWindow):
 
     def hamburger_label(self, bg):
         self.sideBar = QPushButton(self)
-        self.png_button(self.sideBar, "hamburger")
+        cgf.png_button(self.sideBar, "hamburger", self.iconSize)
         self.sideBar.move(
             int(self.spacing), 
             int(self.headerBlock.height() + self.spacing)
@@ -187,7 +188,7 @@ class MainWindow(QMainWindow):
 
     def home_label(self, bg):
         self.home = QPushButton(self)
-        self.png_button(self.home, "home")
+        cgf.png_button(self.home, "home", self.iconSize)
         self.home.move(
             int(self.spacing), 
             int(self.sideBar.y() + self.sideBar.height() + self.spacing)
@@ -200,7 +201,7 @@ class MainWindow(QMainWindow):
 
     def stats_label(self, bg):
         self.stats = QPushButton(self)
-        self.png_button(self.stats, "stats")
+        cgf.png_button(self.stats, "stats", self.iconSize)
         self.stats.move(
             int(self.spacing), 
             int(self.home.y() + self.home.height() + self.spacing)
@@ -269,49 +270,6 @@ class MainWindow(QMainWindow):
             "text-align: left;"
             "color: white"
         )
-
-    '''
-    Test
-    
-    '''
-    def menu_styling(self, color):
-        points = [(self.menuBlock.x(), self.menuBlock.y()),
-                  (self.menuBlock.x()+self.menuBlock.width(), self.sideBar.y()),
-                  (self.menuBlock.x()+self.menuBlock.width(), self.sideBar.y())]
-
-        print(points)
-        # points = [(103, 160),
-        #           (257, 160),
-        #           (103, 111)]
-        self.upperTriangle = PolygonWidget(points=points, parent=self)
-        
-        self.upperTriangle.setGeometry(self.menuBlock.x(), 
-                                       self.sideBar.y(),
-                                       self.menuBlock.width()-self.spacing,
-                                       self.menuBlock.y()-self.sideBar.y()-self.spacing)
-        # self.upperTriangle.setGeometry(103, 160, 
-        #                                50, 
-        #                                150)
-        self.upperTriangle.hide()
-        self.menu_widgets.append(self.upperTriangle)
-        # self.menu_widgets.append(self.upperTriangle)
-
-        points = [
-        (50, 50),
-        (150, 50),
-        (150, 150)
-        ]
-        self.aTriangle = PolygonWidget(points=points, outline=Qt.red, color=Qt.red, parent=self)
-        self.aTriangle.setGeometry(250, 250, 200, 200)
-        self.aTriangle.hide()
-        
-        self.devices = []
-        self.aButton = QPushButton("push", self)
-        self.aButton.setStyleSheet("background:white; color:black;border:1px solid red")
-        self.aButton.move(int(self.width/2), int(self.height/2))
-        self.aButton.hide()
-
-        self.aButton.clicked.connect(lambda: self.showTriangle())
 
     '''
     Home Page
@@ -505,80 +463,54 @@ class MainWindow(QMainWindow):
     '''
     def statspage(self):
         return
+
+    '''
+    Test
     
-    # functions
-    def showTriangle(self):
-            if self.upperTriangle.isVisible():
-                print("vis", self.upperTriangle.isVisible())
-                # self.upperTriangle2.setVisible(False)
-                # self.upperTriangle2.show()
-                self.upperTriangle.hide()
-                self.aTriangle.hide()
-                 
-            else:
-                print("invis", self.upperTriangle.isVisible())
-                # self.upperTriangle2.setVisible(True) 
-                self.upperTriangle.show()
-                self.upperTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
-                                               30, 30)
-                self.aTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
-                                               30, 30)
-                self.aTriangle.show()
+    '''
+    def menu_styling(self, color):
+        points = [(self.menuBlock.x(), self.menuBlock.y()),
+                  (self.menuBlock.x()+self.menuBlock.width(), self.sideBar.y()),
+                  (self.menuBlock.x()+self.menuBlock.width(), self.sideBar.y())]
 
-            try:
-                num_slices = len(self.devices)
-                try:
-                    span_angle = int(360/num_slices)
-                except:
-                    span_angle = 360
-                curr_angle = 0
-                self.pie_slices = {}
-                for device in self.devices:
-                    device_name = device["hostname"]
-                    self.pie_slices[device_name] = piewidget.PieWidget(start_angle=curr_angle, span_angle=span_angle, outline=Qt.black, parent=self)
-                    self.pie_slices[device_name].setGeometry(self.aButton.x()+self.aButton.width(), self.aButton.y()+self.aButton.height(),
-                                                            100, 100)
-                    self.pie_slices[device_name].show()
-                    curr_angle+=span_angle
-            except:
-                pass
-
-    def png_label(self, label, icon_name, icon_size, input=0):
-        if input == 0:
-            icon_path = os.path.abspath(f"outputs/{icon_name}.jpeg")
-        else:
-            icon_path = os.path.abspath(f"gui/images/{icon_name}.png")
-        pixmap = QtGui.QPixmap(icon_path)
-        pixmap = pixmap.scaled(
-            int(icon_size*4/3), icon_size
-        )
-        label.setPixmap(pixmap)
-        label.resize(pixmap.size())
-
-    def png_button(self, button, icon_name):
-        icon_path = os.path.abspath(f"gui/images/{icon_name}.png")
-        pixmap = QtGui.QPixmap(icon_path)
-        pixmap = pixmap.scaled(
-            self.iconSize, self.iconSize
-        )
-        button.setIcon(QtGui.QIcon(pixmap))
-        button.setIconSize(pixmap.size())
-        button.resize(pixmap.size())
+        print(points)
+        # points = [(103, 160),
+        #           (257, 160),
+        #           (103, 111)]
+        self.upperTriangle = PolygonWidget(points=points, parent=self)
         
-    def hex_to_qcolor(self, hex_string):
-        # Remove the '#' if it exists
-        hex_string = hex_string.lstrip('#')
+        self.upperTriangle.setGeometry(self.menuBlock.x(), 
+                                       self.sideBar.y(),
+                                       self.menuBlock.width()-self.spacing,
+                                       self.menuBlock.y()-self.sideBar.y()-self.spacing)
+        # self.upperTriangle.setGeometry(103, 160, 
+        #                                50, 
+        #                                150)
+        self.upperTriangle.hide()
+        self.menu_widgets.append(self.upperTriangle)
+        # self.menu_widgets.append(self.upperTriangle)
 
-        # Convert the hex string to an integer
-        rgb = int(hex_string, 16)
+        points = [
+        (50, 50),
+        (150, 50),
+        (150, 150)
+        ]
+        self.aTriangle = PolygonWidget(points=points, outline=Qt.red, color=Qt.red, parent=self)
+        self.aTriangle.setGeometry(250, 250, 200, 200)
+        self.aTriangle.hide()
+        
+        self.devices = []
+        self.aButton = QPushButton("push", self)
+        self.aButton.setStyleSheet("background:white; color:black;border:1px solid red")
+        self.aButton.move(int(self.width/2), int(self.height/2))
+        self.aButton.hide()
 
-        # Extract the RGB values
-        r = (rgb >> 16) & 0xFF
-        g = (rgb >> 8) & 0xFF
-        b = rgb & 0xFF
-        return QColor(r, g, b)
+        self.aButton.clicked.connect(lambda: self.showTriangle())
     
-    # signals
+    '''
+    Signals
+    
+    '''
     def gearClicked(self):
         if self.settings_bg != self.colorDarkGrey:
             self.theme1 = self.colorBlack
@@ -754,8 +686,43 @@ class MainWindow(QMainWindow):
         self.devices = find_devices.scan_network(self.curr_ip)
         self.aButton.click()
 
-        self.png_label(self.pieChart, "devices_pie", int(self.homepage_h*0.8))
+        cgf.png_label(self.pieChart, "devices_pie", int(self.homepage_h*0.8))
         
+    def showTriangle(self):
+            if self.upperTriangle.isVisible():
+                print("vis", self.upperTriangle.isVisible())
+                # self.upperTriangle2.setVisible(False)
+                # self.upperTriangle2.show()
+                self.upperTriangle.hide()
+                self.aTriangle.hide()
+                 
+            else:
+                print("invis", self.upperTriangle.isVisible())
+                # self.upperTriangle2.setVisible(True) 
+                self.upperTriangle.show()
+                self.upperTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
+                                               30, 30)
+                self.aTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
+                                               30, 30)
+                self.aTriangle.show()
+
+            try:
+                num_slices = len(self.devices)
+                try:
+                    span_angle = int(360/num_slices)
+                except:
+                    span_angle = 360
+                curr_angle = 0
+                self.pie_slices = {}
+                for device in self.devices:
+                    device_name = device["hostname"]
+                    self.pie_slices[device_name] = piewidget.PieWidget(start_angle=curr_angle, span_angle=span_angle, outline=Qt.black, parent=self)
+                    self.pie_slices[device_name].setGeometry(self.aButton.x()+self.aButton.width(), self.aButton.y()+self.aButton.height(),
+                                                            100, 100)
+                    self.pie_slices[device_name].show()
+                    curr_angle+=span_angle
+            except:
+                pass
 
     def set_data(self, new_data):
         """Set new data and update the pie chart."""
