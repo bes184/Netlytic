@@ -13,15 +13,29 @@ import os
 # print(http_ips)
 # input("enter")
 
-import sys
-from PyQt5.QtWidgets import QApplication
+from gui import splashscreen
 from gui import screen
 
-if __name__ == '__main__':
+import sys
+import time
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5 import QtGui
+import os
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # Create an instance of MainWindow
-    window = screen.MainWindow()
+    splash = splashscreen.SplashScreen()
+    
+    for i in range(1, 101):
+        time.sleep(0.02)  
+        splash.showMessage(f"Loading... {i}%", Qt.AlignBottom | Qt.AlignCenter, Qt.black)
+        QApplication.processEvents()
 
-    # Start the event loop
-    sys.exit(app.exec_())
+    window = screen.MainWindow()
+    window.show()
+    splash.finish(window)
+
+    sys.exit(app.exec())
