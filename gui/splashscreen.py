@@ -1,10 +1,7 @@
-import sys
-import time
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtGui
-import os
 
 class SplashScreen(QSplashScreen):
     def __init__(self):

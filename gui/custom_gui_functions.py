@@ -1,5 +1,6 @@
 import sys
 import os
+
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -13,10 +14,18 @@ def place_down(target, dest, spacing=25):
     target.move(dest.x(), 
                 int(dest.height()+dest.y()+spacing))
 
+def place_up(target, dest, spacing=0):
+    target.move(dest.x(), 
+                int(dest.height()-dest.y()-spacing))
+
 def place_center(target, dest):
     target.move(int((dest.width()-target.width())/2+dest.x()), 
                 int((dest.height()-target.height())/2)+dest.y())
 
+def place_within(target, dest,spacingx=0, spacingy=0):
+    target.move(int(dest.x()+spacingx),
+                int(dest.y()+spacingy))
+    
 def center_horizontally(target, dest):
     target.move(int((dest.width()-target.width())/2+dest.x()), 
                 target.y())
@@ -55,3 +64,10 @@ def hex_to_qcolor(hex_string):
     g = (rgb >> 8) & 0xFF
     b = rgb & 0xFF
     return QColor(r, g, b)
+
+def luna_of_gale_scheme():
+     return ["#d6e4f5", 
+             "#a4c9df",
+             "#7bb7d1",
+             "#4aa0c4",
+             "#1d3a6d"]

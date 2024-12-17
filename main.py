@@ -1,6 +1,5 @@
 from network_functions import find_devices
 from network_functions import get_http_traffic
-import os
 
 # curr_ip = find_devices.get_current_ip()
 # find_devices.scan_network(curr_ip)
@@ -13,16 +12,17 @@ import os
 # print(http_ips)
 # input("enter")
 
+import sys
+import time
+import os
+
 from gui import splashscreen
 from gui import screen
 
-import sys
-import time
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtGui
-import os
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -1,9 +1,10 @@
+import math
+import sys
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5 import QtGui
-import math
-import sys
 
 class CirclePolygonWidget(QWidget):
     def __init__(self):
