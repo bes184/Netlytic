@@ -80,6 +80,7 @@ class MainWindow(QMainWindow):
 
         # Gear
         self.settings_label(bg)
+        self.settingsclickedstate = False
         
         # signals
         self.settings.clicked.connect(lambda: self.gearClicked())
@@ -458,19 +459,26 @@ class MainWindow(QMainWindow):
     
     '''
     def gearClicked(self):
-        if self.settings_bg != self.colorDarkGrey:
+        if not self.settingsclickedstate:
             self.theme1 = self.colorBlack
             self.theme2 = self.colorDarkGrey
-
-        elif self.settings_bg != self.colorDarkOrange:
+            self.settingsclickedstate = True
+        else:
             self.theme1 = self.colorOrange
             self.theme2 = self.colorDarkOrange
+            self.settingsclickedstate = False
 
         self.settings_bg = self.theme2    
-        self.settings.setStyleSheet(
-            "background-color:" + self.theme2 + ";"
-            "border: 1px solid" + self.theme2
-            )
+        self.settings.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {self.theme1};
+                border: 1px solid {self.theme1};
+                color: white;
+            }}
+            QPushButton:pressed {{
+                background-color: {self.theme2}; /* Change border on press */
+            }}
+            """)
         
         for widgets in self.header_widgets:
             widgets.setStyleSheet(
@@ -502,15 +510,6 @@ class MainWindow(QMainWindow):
             )
             self.sideBar_bg = self.theme1
             self.hamburgerclickedstate = False
-            # for widget in self.menu_widgets:
-            #     widget.show()
-            #     try:
-            #         if widget.isVisible():
-            #             widget.hide()
-            #         else:
-            #             widget.show()
-            #     except:
-            #         pass
         
         else:
             self.sideBar.setStyleSheet(
@@ -519,18 +518,7 @@ class MainWindow(QMainWindow):
             )
             self.sideBar_bg = self.theme2
             self.hamburgerclickedstate = True
-            # for widget in self.menu_widgets:
-            #     print(widget)
-            #     widget.hide()
-            #     try:
-            #         if widget.isVisible():
-            #             print(widget, "hidden")
-            #             widget.hide()
-            #         else:
-            #             print(widget, "shown")
-            #             widget.show()
-            #     except:
-            #         pass
+
         for widget in self.menu_widgets:
                 try:
                     if widget.isVisible():
@@ -541,81 +529,81 @@ class MainWindow(QMainWindow):
                     pass
 
     def homeClicked(self):
-        if self.home_bg != self.theme2:
-            self.home.setStyleSheet(
+        self.home.setStyleSheet(
+        "background-color:" + self.theme2 + ";"
+        "border: 1px solid" + self.theme2 + ";"
+        "color: white"
+        )
+
+        try:
+            self.homeLabel.setStyleSheet(
             "background-color:" + self.theme2 + ";"
             "border: 1px solid" + self.theme2 + ";"
+            "text-align: left;"
             "color: white"
             )
-            try:
-                self.homeLabel.setStyleSheet(
-                "background-color:" + self.theme2 + ";"
-                "border: 1px solid" + self.theme2 + ";"
-                "text-align: left;"
-                "color: white"
-                )
-            except:
-                pass
-            self.home_bg = self.theme2
+        except:
+            pass
+        self.home_bg = self.theme2
 
-            self.stats.setStyleSheet(
+        self.stats.setStyleSheet(
+        "background-color:" + self.theme1 + ";"
+        "border: 1px solid" + self.theme1 + ";"
+        "color: white"
+        )
+        try:
+            self.statsLabel.setStyleSheet(
             "background-color:" + self.theme1 + ";"
             "border: 1px solid" + self.theme1 + ";"
+            "text-align: left;"
             "color: white"
             )
-            try:
-                self.statsLabel.setStyleSheet(
-                "background-color:" + self.theme1 + ";"
-                "border: 1px solid" + self.theme1 + ";"
-                "text-align: left;"
-                "color: white"
-                )
-            except:
-                pass
-            self.stats_bg = self.theme1
-            try:
-                for widget in self.homepage_widgets:
-                    widget.show()
-            except:
-                pass
+        except:
+            pass
+        self.stats_bg = self.theme1
+
+        try:
+            for widget in self.homepage_widgets:
+                widget.show()
+        except:
+            pass
 
     def statsClicked(self):
-        if self.stats_bg != self.theme2:
-            self.stats.setStyleSheet(
+        self.stats.setStyleSheet(
+        "background-color:" + self.theme2 + ";"
+        "border: 1px solid" + self.theme2 + ";"
+        "color: white"
+        )
+        try:
+            self.statsLabel.setStyleSheet(
             "background-color:" + self.theme2 + ";"
             "border: 1px solid" + self.theme2 + ";"
+            "text-align: left;"
             "color: white"
             )
-            try:
-                self.statsLabel.setStyleSheet(
-                "background-color:" + self.theme2 + ";"
-                "border: 1px solid" + self.theme2 + ";"
-                "text-align: left;"
-                "color: white"
-                )
-            except:
-                pass
-            self.stats_bg = self.theme2
+        except:
+            pass
+        self.stats_bg = self.theme2
 
-            self.home.setStyleSheet(
+        self.home.setStyleSheet(
+        "background-color:" + self.theme1 + ";"
+        "border: 1px solid" + self.theme1 + ";"
+        "color: white"
+        )
+        try: self.homeLabel.setStyleSheet(
             "background-color:" + self.theme1 + ";"
             "border: 1px solid" + self.theme1 + ";"
+            "text-align: left;"
             "color: white"
             )
-            try: self.homeLabel.setStyleSheet(
-                "background-color:" + self.theme1 + ";"
-                "border: 1px solid" + self.theme1 + ";"
-                "text-align: left;"
-                "color: white"
-                )
-            except:
-                pass
-            self.home_bg = self.theme1
-            try:
-                for widget in self.homepage_widgets:
-                    widget.hide()
-            except:
-                pass
+        except:
+            pass
+        self.home_bg = self.theme1
+        try:
+            for widget in self.homepage_widgets:
+                widget.hide()
+        except:
+            pass
 
     def display_loading_img(self):
         loading_path = os.path.abspath("gui/images/loading.gif")
@@ -677,6 +665,7 @@ class MainWindow(QMainWindow):
                     self.pie_slices[device_name].resize(int(self.pieChart.height()),
                                                         int(self.pieChart.height()))
                     cgf.place_down(self.pie_slices[device_name], self.aButton)
+                    self.pie_slices[device_name].clicked.connect(lambda: print(f"Pie {pie_number} was clicked"))
                     self.pie_slices[device_name].show()
                     curr_angle+=span_angle
                     pie_number+=1
