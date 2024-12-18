@@ -7,6 +7,7 @@ from gui import piewidget
 from gui import polygonwidget
 from gui import custom_gui_functions as cgf
 from network_functions import find_devices
+from network_functions import get_traffic
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -16,6 +17,7 @@ from PyQt5 import QtGui
 class MainWindow(QMainWindow):
     
     # color variables
+    colorLightBlue = "#adcae6"
     colorDarkBlue = "#085394"
     colorDarkRed = "#CF2A27"
     colorDarkGreen = "#2E5339"
@@ -57,8 +59,10 @@ class MainWindow(QMainWindow):
         # Show the window
         self.show()
 
+        self.statspage()
         self.menu(self.theme1)
-        self.menu_styling(self.theme1)
+        # self.menu_styling(self.theme1)
+        self.hidden_widgets()
     
     '''
     Header
@@ -267,12 +271,37 @@ class MainWindow(QMainWindow):
         self.piecharttitle_label()
         self.homepage_widgets.append(self.pieChartTitle)
 
+        self.piechartinstructions_label()
+        self.homepage_widgets.append(self.pieChartInstructions)
+
         self.piechartbg_label()
         self.homepage_widgets.append(self.pieChartBackground) 
 
         self.piechart_label()
         self.homepage_widgets.append(self.pieChart)        
 
+        self.piechartinfo_label()
+        self.homepage_widgets.append(self.pieChartInfo)     
+
+        self.slicename_label()
+        self.homepage_widgets.append(self.sliceName) 
+
+        self.slicenamevalue_label()
+        self.homepage_widgets.append(self.sliceNameValue) 
+
+        self.sliceIP_label()
+        self.homepage_widgets.append(self.sliceIP) 
+
+        self.sliceIPvalue_label()
+        self.homepage_widgets.append(self.sliceIPValue) 
+
+        self.sliceMAC_label()
+        self.homepage_widgets.append(self.sliceMAC) 
+
+        self.sliceMACvalue_label()
+        self.homepage_widgets.append(self.sliceMACValue) 
+
+        self.curr_mac = find_devices.get_current_mac()
         self.curr_ip = find_devices.get_current_ip()
         self.curr_hostname = find_devices.get_hostname(self.curr_ip)
         threading.Thread(target=self.update_pie_chart).start()
@@ -282,6 +311,12 @@ class MainWindow(QMainWindow):
 
         self.deviceinfotitle_label()
         self.homepage_widgets.append(self.deviceInfoTitle)
+
+        self.devicemac_label()
+        self.homepage_widgets.append(self.deviceMAC)
+        
+        self.devicemacvalue_label()
+        self.homepage_widgets.append(self.deviceMACValue)
 
         self.deviceip_label()
         self.homepage_widgets.append(self.deviceIP)
@@ -317,22 +352,116 @@ class MainWindow(QMainWindow):
             "color:"+self.colorDarkBlue
         )
 
+    def piechartinstructions_label(self):
+        self.pieChartInstructions = QLabel("Click on a slice to view more information", self)
+        self.pieChartInstructions.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.10)))
+        self.pieChartInstructions.resize(QSize(int(self.pieChartBlock.width()-self.spacing*2), 
+                                   int(self.pieChartBlock.height()*0.05)))
+        cgf.place_down(self.pieChartInstructions, self.pieChartTitle, spacing=self.spacing)
+        
+        self.pieChartInstructions.setStyleSheet(
+            "background:"+self.colorMediumGrey+ ";"
+            "border: 1px solid"+self.colorMediumGrey+ ";"
+            "color: black;"
+        )
+
     def piechartbg_label(self):
         self.pieChartBackground = QLabel(self)
         self.pieChartBackground.resize(QSize(int(self.pieChartBlock.width()-self.spacing*2), 
                                    int(self.pieChartBlock.height()*0.5)))
-        cgf.place_down(self.pieChartBackground, self.pieChartTitle, spacing=self.spacing)
+        cgf.place_down(self.pieChartBackground, self.pieChartInstructions, spacing=self.spacing)
         self.pieChartBackground.setStyleSheet(
-            "background:"+self.colorMediumGrey+ ";"
+            "background:"+self.colorLightGrey+ ";"
         )
 
     def piechart_label(self):
         self.pieChart = QLabel(self)
-        self.pieChart.resize(QSize(int(self.pieChartBlock.width()-self.spacing*2), 
+        self.pieChart.resize(QSize(int(self.pieChartBlock.height()*0.5), 
                                    int(self.pieChartBlock.height()*0.5)))
-        cgf.place_down(self.pieChart, self.pieChartTitle, spacing=self.spacing)
+        cgf.place_down(self.pieChart, self.pieChartInstructions, spacing=self.spacing)
 
-        self.display_loading_img()
+        self.display_loading_img(self.pieChart)
+
+    def piechartinfo_label(self):
+        self.pieChartInfo = QLabel(self)
+        self.pieChartInfo.resize(QSize(int(self.pieChartBlock.width() - self.pieChart.width() - self.spacing*3), 
+                                   int(self.pieChartBlock.height()*0.5)))
+        cgf.place_right(self.pieChartInfo, self.pieChart, spacing=self.spacing)
+        self.pieChartInfo.setStyleSheet(
+            "background:"+self.colorWhite+ ";"
+        )
+
+    def slicename_label(self):
+        self.sliceName = QLabel("Host Name", self)
+        self.sliceName.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceName.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_within(self.sliceName, self.pieChartInfo, spacingx=self.spacing, spacingy=self.spacing)
+        self.sliceName.setStyleSheet(
+            "border: 1px solid "+self.colorMediumGrey+";"
+            "color:"+self.colorDarkBlue+";"
+        )
+
+    def slicenamevalue_label(self):
+        self.sliceNameValue = QLabel(self)
+        self.sliceNameValue.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceNameValue.setAlignment(Qt.AlignLeft)
+        self.sliceNameValue.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_down(self.sliceNameValue, self.sliceName, spacing=self.spacing)
+        self.sliceNameValue.setStyleSheet(
+            "background:"+self.colorLightGrey+";"
+            "border: 1px solid "+self.colorLightGrey+";"
+            "color: black;"
+        )
+
+    def sliceIP_label (self):
+        self.sliceIP = QLabel("IPv4 Address", self)
+        self.sliceIP.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceIP.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_down(self.sliceIP, self.sliceNameValue, spacing=self.spacing)
+        self.sliceIP.setStyleSheet(
+            "border: 1px solid "+self.colorMediumGrey+";"
+            "color:"+self.colorDarkBlue+";"
+        )
+
+    def sliceIPvalue_label(self):
+        self.sliceIPValue = QLabel(self)
+        self.sliceIPValue.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceIPValue.setAlignment(Qt.AlignLeft)
+        self.sliceIPValue.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_down(self.sliceIPValue, self.sliceIP, spacing=self.spacing)
+        self.sliceIPValue.setStyleSheet(
+            "background:"+self.colorLightGrey+";"
+            "border: 1px solid "+self.colorLightGrey+";"
+            "color: black;"
+        )
+    
+    def sliceMAC_label(self):
+        self.sliceMAC = QLabel("MAC Address", self)
+        self.sliceMAC.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceMAC.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_down(self.sliceMAC, self.sliceIPValue, spacing=self.spacing)
+        self.sliceMAC.setStyleSheet(
+            "border: 1px solid "+self.colorMediumGrey+";"
+            "color:"+self.colorDarkBlue+";"
+        )
+
+    def sliceMACvalue_label(self):
+        self.sliceMACValue = QLabel(self)
+        self.sliceMACValue.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.sliceMACValue.setAlignment(Qt.AlignLeft)
+        self.sliceMACValue.resize(QSize(int(self.pieChartInfo.width()-self.spacing*2), 
+                                   int(self.pieChartInfo.height()*0.1)))
+        cgf.place_down(self.sliceMACValue, self.sliceMAC, spacing=self.spacing)
+        self.sliceMACValue.setStyleSheet(
+            "background:"+self.colorLightGrey+";"
+            "border: 1px solid "+self.colorLightGrey+";"
+            "color: black;"
+        )
 
     def deviceinfoblock_label(self):
         self.deviceInfoBlock = QLabel(self)
@@ -347,7 +476,7 @@ class MainWindow(QMainWindow):
         )
 
     def deviceinfotitle_label(self):
-        self.deviceInfoTitle = QLabel("Device Information", self)
+        self.deviceInfoTitle = QLabel("Your Device", self)
         self.deviceInfoTitle.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.15)))
         self.deviceInfoTitle.resize(QSize(int(self.deviceInfoBlock.width()-self.spacing*2), 
                                    int(self.deviceInfoBlock.height()*0.1)))
@@ -358,13 +487,39 @@ class MainWindow(QMainWindow):
             "color: white"
         )
 
+    def devicemac_label(self):
+        self.deviceMAC = QLabel("MAC Address:", self)
+        self.deviceMAC.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.deviceMAC.setAlignment(Qt.AlignLeft)
+        self.deviceMAC.resize(QSize(int(self.deviceInfoBlock.width()-self.spacing*2), 
+                                   int(self.deviceInfoBlock.height()*0.05)))
+        cgf.place_down(self.deviceMAC, self.deviceInfoTitle, spacing=self.spacing)
+        self.deviceMAC.setStyleSheet(
+            "background:"+self.colorMediumGrey+";"
+            "border: 1px solid "+self.colorMediumGrey+";"
+            "color: black"
+        )
+
+    def devicemacvalue_label(self):
+        self.deviceMACValue = QLabel(self.curr_mac, self)
+        self.deviceMACValue.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
+        self.deviceMACValue.setAlignment(Qt.AlignLeft)
+        self.deviceMACValue.resize(QSize(int(self.deviceInfoBlock.width()-self.spacing*2), 
+                                   int(self.deviceInfoBlock.height()*0.1)))
+        cgf.place_down(self.deviceMACValue, self.deviceMAC, spacing=self.spacing)
+        self.deviceMACValue.setStyleSheet(
+            "background:"+self.colorDarkGrey+";"
+            "border: 1px solid "+self.colorDarkGrey+";"
+            "color: white"
+        )
+
     def deviceip_label(self):
         self.deviceIP = QLabel("IPv4 Address:", self)
         self.deviceIP.setFont(QFont(self.fontStyle, int(self.homepage_h/8*0.12)))
         self.deviceIP.setAlignment(Qt.AlignLeft)
         self.deviceIP.resize(QSize(int(self.deviceInfoBlock.width()-self.spacing*2), 
                                    int(self.deviceInfoBlock.height()*0.05)))
-        cgf.place_down(self.deviceIP, self.deviceInfoTitle, spacing=self.spacing)
+        cgf.place_down(self.deviceIP, self.deviceMACValue, spacing=self.spacing)
         self.deviceIP.setStyleSheet(
             "background:"+self.colorMediumGrey+";"
             "border: 1px solid "+self.colorMediumGrey+";"
@@ -415,10 +570,45 @@ class MainWindow(QMainWindow):
     
     '''
     def statspage(self):
-        return
+        self.statspage_widgets = []
+
+        self.statspage_label()
+        self.statsPage.hide()
+        self.statspage_widgets.append(self.statsPage)
+
+        self.statsgraph_label()
+        self.statsGraph.hide()
+        self.statspage_widgets.append(self.statsGraph)
+
+        widget = get_traffic.TrafficWidget()
+        traffic_thread = threading.Thread(target=widget.plot_traffic, daemon=True)  # Run in the background
+        traffic_thread.start()
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_graph)
+        self.timer.start(1000)
+
+    def statspage_label(self):
+        self.statsPage = QLabel(self)
+        self.statsPage.setFixedSize(QSize(int(self.homepage_w),
+                                              int(self.homepage_h)))
+        self.statsPage.setStyleSheet(
+            "background-color:" + self.colorLightGrey + ";"
+        )
+        cgf.place_right(self.statsPage, self.sideBarBlock, spacing=0)
+    
+    def statsgraph_label(self):
+        self.statsGraph = QLabel(self)
+        self.statsGraph.setFixedSize(QSize(int(self.statsPage.width()/2),
+                                              int(self.statsPage.width()/2)))
+        self.statsGraph.setStyleSheet(
+            "background-color:" + self.colorMediumGrey + ";"
+        )
+        cgf.place_center(self.statsGraph, self.statsPage)
+        self.display_loading_img(self.statsGraph)
 
     '''
-    Test
+    Hidden Widgets
     
     '''
     def menu_styling(self, color):
@@ -452,8 +642,17 @@ class MainWindow(QMainWindow):
         cgf.place_right(self.upperTriangle, self.aButton)
         self.upperTriangle.show()
 
-        self.aButton.clicked.connect(lambda: self.showTriangle())
-    
+    def hidden_widgets(self):
+        self.hidden_button()
+        self.hiddenButton.hide()
+        self.hiddenButton.clicked.connect(lambda: self.create_pie_chart())
+
+    def hidden_button(self):
+        self.hiddenButton = QPushButton("push", self)
+        self.hiddenButton.setStyleSheet("background:white; color:black;border:1px solid red")
+        self.hiddenButton.move(int(self.width/2), int(self.height/2))
+        
+
     '''
     Signals
     
@@ -563,6 +762,8 @@ class MainWindow(QMainWindow):
         self.stats_bg = self.theme1
 
         try:
+            for widget in self.statspage_widgets:
+                widget.hide()
             for widget in self.homepage_widgets:
                 widget.show()
         except:
@@ -602,48 +803,41 @@ class MainWindow(QMainWindow):
         try:
             for widget in self.homepage_widgets:
                 widget.hide()
+            for widget in self.statspage_widgets:
+                widget.show()
         except:
             pass
-
-    def display_loading_img(self):
+    
+    def update_graph(self):
+        graph_path = os.path.abspath("outputs/packet_traffic.jpeg")
+        pixmap = QtGui.QPixmap(graph_path)
+        pixmap = pixmap.scaled(
+            QSize(self.statsGraph.width(),
+            self.statsGraph.height()),
+            Qt.AspectRatioMode.KeepAspectRatio
+        )
+        self.statsGraph.setPixmap(pixmap)
+        
+    def display_loading_img(self, widget):
         loading_path = os.path.abspath("gui/images/loading.gif")
         pixmap = QtGui.QPixmap(loading_path)
         pixmap = pixmap.scaled(
-            QSize(self.pieChart.width(),
-            self.pieChart.height()),
+            QSize(widget.width(),
+            widget.height()),
             Qt.AspectRatioMode.KeepAspectRatio
         )
         width = pixmap.width()
         height = pixmap.height()
         self.loading = QMovie(loading_path)
         self.loading.setScaledSize(QSize(width, height))
-        self.pieChart.setMovie(self.loading)
+        widget.setMovie(self.loading)
         self.loading.start()
 
     def update_pie_chart(self):
         self.devices = find_devices.scan_network(self.curr_ip)
-        self.aButton.click()
+        self.hiddenButton.click()
 
-        cgf.png_label(self.pieChart, "devices_pie", int(self.pieChart.height()))
-        
-    def showTriangle(self):
-            if self.upperTriangle.isVisible():
-                print("vis", self.upperTriangle.isVisible())
-                # self.upperTriangle2.setVisible(False)
-                # self.upperTriangle2.show()
-                self.upperTriangle.hide()
-                self.aTriangle.hide()
-                 
-            else:
-                print("invis", self.upperTriangle.isVisible())
-                # self.upperTriangle2.setVisible(True) 
-                self.upperTriangle.show()
-                self.upperTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
-                                               30, 30)
-                self.aTriangle.setGeometry(self.aButton.x(), self.aButton.y()+self.aButton.height()+self.spacing,
-                                               30, 30)
-                self.aTriangle.show()
-
+    def create_pie_chart(self):
             try:
                 num_slices = len(self.devices)
                 try:
@@ -651,28 +845,78 @@ class MainWindow(QMainWindow):
                 except:
                     span_angle = 360
                 curr_angle = 0
-                pie_number = 0
-                self.pie_slices = {}
+                self.pie_number = 0
+                self.pie_slices = []
+                self.hostnames = []
+                self.ip_addresses = []
+                self.mac_addresses = []
                 self.pie_colors = cgf.luna_of_gale_scheme()
                 for device in self.devices:
-                    device_name = device["hostname"]
-                    pie_color = cgf.hex_to_qcolor(self.pie_colors[pie_number % len(self.pie_colors)])
-                    self.pie_slices[device_name] = piewidget.PieWidget(start_angle=curr_angle, 
+                    self.hostnames.append(device["hostname"])
+                    self.ip_addresses.append(device["ip"])
+                    self.mac_addresses.append(device["mac"])
+                    pie_color = cgf.hex_to_qcolor(self.pie_colors[self.pie_number % len(self.pie_colors)])
+                    self.pie_slices.append(piewidget.PieWidget(start_angle=curr_angle, 
                                                                        span_angle=span_angle, 
                                                                        color=pie_color, 
                                                                        outline=pie_color, 
-                                                                       parent=self)
-                    self.pie_slices[device_name].resize(int(self.pieChart.height()),
+                                                                       parent=self))
+                    self.pie_slices[self.pie_number].resize(int(self.pieChart.height()),
                                                         int(self.pieChart.height()))
-                    cgf.place_down(self.pie_slices[device_name], self.aButton)
-                    self.pie_slices[device_name].clicked.connect(lambda: print(f"Pie {pie_number} was clicked"))
-                    self.pie_slices[device_name].show()
+                    cgf.place_center(self.pie_slices[self.pie_number], self.pieChart)
+                    self.homepage_widgets.append(self.pie_slices[self.pie_number])
                     curr_angle+=span_angle
-                    pie_number+=1
+                    self.pie_number+=1
+                self.pie_signals()
+                if(self.home_bg is self.theme2):
+                    self.homeClicked()
+                    self.menu(self.theme1)
+
             except:
                 pass
-
     
+    def pie_signals(self):
+        if len(self.pie_slices) > 1:
+            for i in range(len(self.pie_slices)-1):
+                self.pie_slices[i].clicked.connect(lambda: self.click_a_slice(self.pie_slices[i]))
+        self.pie_slices[-1].clicked.connect(lambda: self.click_last_slice())
+    
+    def click_a_slice(self, a_slice):
+        self.update_pie_information()
+
+    def update_pie_information(self):
+        for slice in self.pie_slices:
+            if slice.is_pressed:
+                self.sliceNameValue.setText(self.hostnames[self.pie_slices.index(slice)])
+                self.sliceIPValue.setText(self.ip_addresses[self.pie_slices.index(slice)])
+                self.sliceMACValue.setText(self.mac_addresses[self.pie_slices.index(slice)])
+                print(f"Slice {self.pie_slices.index(slice)} was clicked")
+
+    def click_last_slice(self):
+        pos = self.pie_slices[-1].click_pos
+        for slice in self.pie_slices:
+            if slice is not self.pie_slices[-1]:
+                slice.set_click_pos(pos)
+                press_event = QMouseEvent(
+                    QEvent.MouseButtonPress,  # The event type
+                    pos,                      # Position of the click
+                    Qt.LeftButton,            # The mouse button pressed
+                    Qt.LeftButton,            # The button that was released
+                    Qt.NoModifier             # No modifier keys (e.g., shift, ctrl)
+                )
+                slice.mousePressEvent(press_event)
+
+                release_event = QMouseEvent(
+                    QEvent.MouseButtonRelease,  # Event type
+                    pos,                        # Position of the click
+                    Qt.LeftButton,              # The mouse button released
+                    Qt.LeftButton,              # The button that was released
+                    Qt.NoModifier               # No modifier keys
+                )
+                slice.mouseReleaseEvent(release_event)
+                slice.clicked.emit()
+                
+
     def set_data(self, new_data):
         """Set new data and update the pie chart."""
         self.data = new_data

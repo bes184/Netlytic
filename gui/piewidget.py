@@ -8,6 +8,7 @@ from PyQt5 import QtGui
 
 class PieWidget(QWidget):
     clicked = pyqtSignal()
+    current_pressed_slice = None
     def __init__(self, start_angle=30, span_angle=120, outline=Qt.blue, color=Qt.blue, parent=None):
         super().__init__(parent)
         self.start_angle = start_angle  # Start angle in degrees
@@ -17,11 +18,12 @@ class PieWidget(QWidget):
 
         self.is_pressed = False
         self.pressed_outline = QColor(Qt.white)
+        self.pressed_color = QColor(Qt.white)
 
-        # self.click_pos = None
+        self.click_pos = None
+        self.pos_state = 0
 
         self.setStyleSheet("background: transparent;")
-        # self.setMask(self.create_mask())
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -34,6 +36,7 @@ class PieWidget(QWidget):
         rect = QRectF(center_x - radius, center_y - radius, 2 * radius, 2 * radius)
 
         current_outline = self.pressed_outline if self.is_pressed else self.outline
+        current_color = self.pressed_color if self.is_pressed else self.color
 
         # Draw arc
         painter.setPen(QPen(current_outline, 2))
@@ -41,23 +44,39 @@ class PieWidget(QWidget):
         painter.drawArc(rect, self.start_angle * 16, self.span_angle * 16)  # Angles in 1/16 degree
 
         # Draw filled pie
-        painter.setBrush(QBrush(self.color))
+        painter.setBrush(QBrush(current_color))
         painter.drawPie(rect, self.start_angle * 16, self.span_angle * 16)
     
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.is_inside_slice(event.pos()):
-            self.is_pressed = True  # Set pressed state
-            self.update()  # Trigger repaint
-            # self.click_pos = event.pos()
+        if event.button() == Qt.LeftButton:
+            if self.pos_state == 0:
+                self.click_pos = event.pos()
+            print(self.click_pos)
+            if self.is_inside_slice(self.click_pos):
+                self.set_pressed(True)
             self.clicked.emit()
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.is_pressed = False  # Reset pressed state
             self.update()  # Trigger repaint
 
+    def set_click_pos(self, pos):
+        self.click_pos = pos
+        self.pos_state = 1
+
+    def set_pressed(self, pressed: bool):
+        if pressed:
+            if PieWidget.current_pressed_slice and PieWidget.current_pressed_slice != self:
+                PieWidget.current_pressed_slice.set_pressed(False)
+            self.is_pressed = True
+            PieWidget.current_pressed_slice = self
+        else:
+            self.is_pressed = False
+            if PieWidget.current_pressed_slice == self:
+                PieWidget.current_pressed_slice = None
+        self.update()
+
     def is_inside_slice(self, pos):
-        """Check if the mouse position is inside the pie slice."""
         center_x = self.width() / 2
         center_y = self.height() / 2
 
@@ -91,21 +110,20 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Pie Slice Click Test")
         self.setGeometry(100, 100, 400, 400)
 
-        # Create PieWidget instances for multiple slices
         self.pie1 = PieWidget(start_angle=0, span_angle=90, outline=Qt.black, color=Qt.red, parent=self)
         self.pie1.setGeometry(100, 100, 200, 200)
         self.pie1.clicked.connect(lambda: print("Pie Slice 1 clicked"))
 
         self.pie2 = PieWidget(start_angle=90, span_angle=90, outline=Qt.black, color=Qt.green, parent=self)
-        self.pie2.setGeometry(100, 100, 200, 200)  # Overlays pie1
+        self.pie2.setGeometry(100, 100, 200, 200) 
         self.pie2.clicked.connect(lambda: print("Pie Slice 2 clicked"))
 
         self.pie3 = PieWidget(start_angle=180, span_angle=90, outline=Qt.black, color=Qt.blue, parent=self)
-        self.pie3.setGeometry(100, 100, 200, 200)  # Overlays pie1
+        self.pie3.setGeometry(100, 100, 200, 200) 
         self.pie3.clicked.connect(lambda: print("Pie Slice 3 clicked"))
 
         self.pie4 = PieWidget(start_angle=270, span_angle=90, outline=Qt.black, color=Qt.yellow, parent=self)
-        self.pie4.setGeometry(100, 100, 200, 200)  # Overlays pie1
+        self.pie4.setGeometry(100, 100, 200, 200)  
         self.pie4.clicked.connect(lambda: print("Pie Slice 4 clicked"))
 
         self.show()

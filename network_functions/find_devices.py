@@ -1,11 +1,7 @@
-from scapy.all import ARP, Ether, srp, conf
+from scapy.all import ARP, Ether, srp, conf, get_if_hwaddr
 import socket
-import ipaddress
-import cv2
 import os
 import matplotlib.pyplot as plt
-import threading
-import time
 
 def get_hostname(ip):
     try:
@@ -59,3 +55,8 @@ def scan_network(ip):
 def get_current_ip():
     current_ip = conf.route.route("0.0.0.0")[1]
     return current_ip
+
+def get_current_mac():
+    current_mac = get_if_hwaddr(conf.iface)
+    return current_mac
+

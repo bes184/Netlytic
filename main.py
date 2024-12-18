@@ -4,10 +4,10 @@ from network_functions import get_http_traffic
 # curr_ip = find_devices.get_current_ip()
 # find_devices.scan_network(curr_ip)
 # input("enter")
-# # curr_hostname = find_devices.get_hostname(curr_ip)
+# curr_hostname = find_devices.get_hostname(curr_ip)
 # ip_list = []
 # sni_list = []
-# # print(f"IP: {curr_ip}, Hostname: {curr_hostname}")
+# print(f"IP: {curr_ip}, Hostname: {curr_hostname}")
 # http_ips = get_http_traffic.start_sniff(curr_ip)
 # print(http_ips)
 # input("enter")
