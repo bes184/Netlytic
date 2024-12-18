@@ -60,3 +60,11 @@ def get_current_mac():
     current_mac = get_if_hwaddr(conf.iface)
     return current_mac
 
+if __name__ == "__main__":
+    curr_ip = get_current_ip()
+    scan_network(curr_ip)
+    input("enter")
+    curr_hostname = get_hostname(curr_ip)
+    ip_list = []
+    sni_list = []
+    print(f"IP: {curr_ip}, Hostname: {curr_hostname}")
